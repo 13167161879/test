@@ -51,7 +51,10 @@ if(code===200&&data&&Array.isArray(data)){
 };
 
   function movement() {
-    if(!list?.length||list.length<7)return
+    if(!list?.length||list.length<7){
+      setVisible(false)
+      return
+    }
     if (Math.abs(top) > 30 * list?.length - 150) {
       flushSync(()=>{setTop(10)})
     }else{
