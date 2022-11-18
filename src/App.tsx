@@ -1,5 +1,6 @@
 import React, { useState ,useEffect,useRef} from "react";
 import {flushSync} from 'react-dom';
+import {  Spin } from 'antd';
 import axios from "axios";
 import './App.css';
 
@@ -17,7 +18,7 @@ interface IData{
 
 function useInterval(callback:any,delay:any) {
   const savedCallback = useRef<any>();
-
+console.log(delay,'delay')
   useEffect(() => {
     savedCallback.current = callback;
   });
@@ -39,29 +40,32 @@ const App=() => {
 const[top, setTop] = useState<number>(10);
 const [list, setList] = useState<IListProp[]>([]);
 const [visible,setVisible] = useState<boolean>(true);
-
-useInterval(movement, visible ? 100 : 100000000000);
+const [loading,setLoading] = useState<boolean>(false)
 
 const getList=async()=>{
+  setLoading(true)
  const res = await axios.get('https://www.fastmock.site/mock/26c0b0c2a0b1a0866b4bbc30033db08e/api/postsList');
 const {data:{data,code}}:{data:IData} =res;
 if(code===200&&data&&Array.isArray(data)){
    setList(data)
   }
+  setLoading(false)
 };
 
   function movement() {
     if(!list?.length||list.length<7){
-      setVisible(false)
       return
     }
-    if (Math.abs(top) > 30 * list?.length - 150) {
+    if (Math.abs(top) > 30 * list?.length - 210) {
       flushSync(()=>{setTop(10)})
     }else{
       const num = top
-      flushSync( ()=>{setTop(num - 1)});
+      flushSync( ()=>{setTop(num - .3)});
     }
-  }
+  };
+
+  useInterval(movement, visible ? 10 : 100000000000);
+
   const stop=()=> {
     flushSync(()=>{
       setVisible(false)
@@ -75,6 +79,7 @@ if(code===200&&data&&Array.isArray(data)){
 
   useEffect(()=>{
     getList();
+    
   },[])
 
 
@@ -104,6 +109,7 @@ if(code===200&&data&&Array.isArray(data)){
        style={{marginTop:top}}
         className='job-info__list__wrap'
         >
+          <Spin spinning={loading}>
           {list.map((item, index) => {
             return (
               <li key={index} className='job-info__list__item'>
@@ -124,6 +130,7 @@ if(code===200&&data&&Array.isArray(data)){
               </li>
             );
           })}
+          </Spin>
         </ul>
       </div>
     </div>
